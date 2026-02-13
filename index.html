@@ -29,7 +29,9 @@
     </style>
 </head>
 <body>
-    <audio id="coinSound" src="https://www.myinstants.com/media/sounds/mario-coin.mp3"></audio>
+    <audio id="soundCoin" src="moeda.mp3"></audio>
+    <audio id="soundVictory" src="vitoria.mp3"></audio>
+    <audio id="musicBg" src="race_result.mp3" loop></audio>
     <div class="container">
         <h1>MARIO KART BROTHERS</h1>
         <div id="app">Carregando dados da nuvem...</div>
@@ -86,49 +88,69 @@
             });
         });
 
-        window.addScore = async (idx, p, pos) => {
-    // Toca o som da moeda
-    const sound = document.getElementById("coinSound");
-    sound.currentTime = 0; // Reinicia o som caso cliquem rápido demais
-    sound.play();
+        // Função para tocar a música de fundo (uma única vez para iniciar)
+function startMusic() {
+    const bg = document.getElementById("musicBg");
+    if (bg.paused) {
+        bg.volume = 0.3; // Volume de fundo mais baixo
+        bg.play();
+    }
+}
+
+window.addScore = async (idx, p, pos) => {
+    startMusic(); // Inicia a música no primeiro ponto
+
+    const coin = document.getElementById("soundCoin");
+    coin.currentTime = 0;
+    coin.volume = 0.5;
+    coin.play();
 
     players[idx].score += p;
     if (pos < players[idx].best) players[idx].best = pos;
     await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
 };
 
-
-        window.clearPlayer = async (idx) => {
-            if(confirm(`Zerar pontos de ${players[idx].name}?`)) {
-                players[idx].score = 0;
-                players[idx].best = 24;
-                await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-            }
-        };
-
-        window.finalizarSemana = async () => {
+window.finalizarSemana = async () => {
     const sorted = [...players].sort((a, b) => b.score - a.score);
     const vencedor = sorted[0];
 
     if(vencedor.score === 0) {
-        alert("Ninguém pontuou! Sem corrida, sem troféu.");
+        alert("Ninguém pontuou ainda!");
         return;
     }
 
     if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
+        // Para a música de fundo e toca a da vitória
+        const bg = document.getElementById("musicBg");
+        const vic = document.getElementById("soundVictory");
+        
+        bg.pause();
+        vic.currentTime = 0;
+        vic.volume = 0.6;
+        vic.play();
+
         const d = new Date();
-        // Formata para DD/MM/AAAA sem firulas
-        const dia = String(d.getDate()).padStart(2, '0');
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const ano = d.getFullYear();
-        const dataFormatada = `${dia}/${mes}/${ano}`;
+        const dataFormatada = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
         
         try {
             await addDoc(collection(db, "hall_fama"), {
                 vencedor: vencedor.name,
                 semana: dataFormatada,
-                data: d // Usado para ordenação no Firestore
+                data: d
             });
+
+            players.forEach(p => { p.score = 0; p.best = 24; });
+            await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+            
+            alert(`REGISTRADO! ${vencedor.name} é o campeão de ${dataFormatada}!`);
+            
+            // Volta a música de fundo após o alerta (opcional)
+            bg.play();
+        } catch (e) {
+            alert("Erro ao salvar no Firebase!");
+        }
+    }
+};
 
             // Zera o placar
             players.forEach(p => { p.score = 0; p.best = 24; });
