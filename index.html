@@ -3,36 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MK World - Ranking Semanal</title>
+    <title>MK World Trio - Scoreboard</title>
     <style>
-        :root { --primary: #e74c3c; --bg: #0b0e14; --card: #1c2128; --text: #f0f6fc; --gold: #f1c40f; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 500px; background: var(--card); border-radius: 12px; padding: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid #30363d; }
-        h1 { color: var(--primary); text-align: center; font-size: 1.2rem; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
-        .player-card { background: #21262d; margin-bottom: 15px; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); position: relative; }
-        .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .player-name { font-size: 1.3rem; font-weight: bold; }
-        .player-score { font-size: 1.6rem; color: var(--gold); font-weight: bold; }
-        .best-label { font-size: 0.8rem; color: #8b949e; display: block; }
-        .grid-points { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        button { border: none; border-radius: 4px; padding: 10px 0; cursor: pointer; font-weight: bold; color: white; font-size: 0.8rem; transition: 0.1s; }
-        .btn-pts { background: #30363d; border: 1px solid #444; }
-        .btn-pts:active { background: #238636; transform: scale(0.95); }
-        .btn-extra { background: #444; grid-column: span 2; border: 1px dashed #666; }
-        .btn-record { background: #d29922; width: 100%; margin-top: 10px; }
-        .reset-btn { background: #da3633; width: 100%; padding: 15px; margin-top: 20px; border-radius: 6px; font-size: 1rem; }
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+        :root {
+            --mk-red: #e74c3c;
+            --mk-blue: #3498db;
+            --mk-gold: #f1c40f;
+            --mk-dark: #121212;
+            --mk-card: rgba(30, 30, 30, 0.9);
+        }
+
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: url('https://images.alphacoders.com/518/518423.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--mk-card);
+            border: 4px solid var(--mk-gold);
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 3px 3px 0px var(--mk-red), -2px -2px 0px var(--mk-blue);
+            font-size: 2rem;
+            margin-top: 0;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            border-bottom: 5px solid rgba(0,0,0,0.3);
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .name { font-size: 1.4rem; color: var(--mk-gold); }
+        .total-pts { font-size: 1.8rem; }
+
+        .grid-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            font-family: 'Fredoka One', cursive;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            cursor: pointer;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.9); }
+
+        .btn-pts { background: var(--mk-blue); border-bottom: 3px solid #2980b9; }
+        .btn-extra { background: #27ae60; border-bottom: 3px solid #219150; grid-column: span 2; }
+        .btn-zero { background: #95a5a6; border-bottom: 3px solid #7f8c8d; grid-column: span 2; }
+
+        .hall-fame {
+            margin-top: 25px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid var(--mk-gold);
+        }
+
+        .hall-title { text-align: center; color: var(--mk-gold); margin-bottom: 10px; }
+
+        .reset-btn {
+            width: 100%;
+            background: var(--mk-red);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            border-bottom: 5px solid #c0392b;
+        }
     </style>
 </head>
 <body>
-
+    <div class="overlay"></div>
     <div class="container">
-        <h1>🏆 Placar Trio - Decisão de Sexta</h1>
+        <h1>MK World Trio</h1>
+        
         <div id="app"></div>
-        <button class="reset-btn" onclick="resetAll()">🏆 Encerrar Semana / Zerar Tudo</button>
+
+        <button class="reset-btn" onclick="resetAll()">🏁 FINALIZAR SEMANA</button>
+
+        <div class="hall-fame">
+            <div class="hall-title">⭐ HALL DA FAMA ⭐</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <span>Semana 02 - Fev/2026</span>
+                <span style="color: var(--mk-gold);">Chicão 👑</span>
+            </div>
+        </div>
     </div>
 
     <script>
-        let players = JSON.parse(localStorage.getItem('mk_final_v3')) || [
+        let players = JSON.parse(localStorage.getItem('mk_style_v1')) || [
             { name: "Carlão", score: 0, best: 24 },
             { name: "Gu", score: 0, best: 24 },
             { name: "Chicão", score: 0, best: 24 }
@@ -41,26 +143,18 @@
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
         function save() {
-            localStorage.setItem('mk_final_v3', JSON.stringify(players));
+            localStorage.setItem('mk_style_v1', JSON.stringify(players));
             render();
         }
 
-        function add(idx, p, posReal) {
+        function add(idx, p, pos) {
             players[idx].score += p;
-            // Atualiza recorde se a posição enviada for melhor que a atual
-            if (posReal < players[idx].best) {
-                players[idx].best = posReal;
-            }
+            if (pos < players[idx].best) players[idx].best = pos;
             save();
         }
 
-        function setManualBest(idx) {
-            let b = prompt(`Qual a melhor posição global do ${players[idx].name} até agora (1-24)?`);
-            if(b && !isNaN(b)) { players[idx].best = parseInt(b); save(); }
-        }
-
         function resetAll() {
-            if(confirm("Isso vai apagar todos os pontos e recordes da semana. Confirmar?")) {
+            if(confirm("Deseja zerar o placar para a nova semana?")) {
                 players.forEach(p => { p.score = 0; p.best = 24; });
                 save();
             }
@@ -74,23 +168,20 @@
                 const oIdx = players.findIndex(orig => orig.name === p.name);
                 return `
                     <div class="player-card">
-                        <div class="player-header">
+                        <div class="header-info">
                             <div>
-                                <span class="player-name">${p.name}</span>
-                                <span class="best-label">Melhor Global: #${p.best}º</span>
+                                <div class="name">${p.name}</div>
+                                <div style="font-size: 0.7rem; color: #bbb">MELHOR GLOBAL: #${p.best}º</div>
                             </div>
-                            <span class="player-score">${p.score} <small style="font-size:0.7rem">PTS</small></span>
+                            <div class="total-pts">${p.score} <small style="font-size: 0.8rem">PTS</small></div>
                         </div>
-                        <div class="grid-points">
+                        <div class="grid-buttons">
                             ${ptsTable.map((pts, i) => `
-                                <button class="btn-pts" onclick="add(${oIdx}, ${pts}, ${i+1})">
-                                    ${i+1}º (${pts})
-                                </button>
+                                <button class="btn-pts" onclick="add(${oIdx}, ${pts}, ${i+1})">${i+1}º</button>
                             `).join('')}
-                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º ou + (1pt)</button>
-                            <button class="btn-extra" style="background:#555" onclick="add(${oIdx}, 0, 24)">0 pts</button>
+                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º+ (1pt)</button>
+                            <button class="btn-zero" onclick="add(${oIdx}, 0, 24)">0 pts</button>
                         </div>
-                        <button class="btn-record" onclick="setManualBest(${oIdx})">Ajustar Recorde Manual</button>
                     </div>
                 `;
             }).join('');
