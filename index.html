@@ -100,26 +100,39 @@
         };
 
         window.finalizarSemana = async () => {
-            const sorted = [...players].sort((a, b) => b.score - a.score);
-            const vencedor = sorted[0];
+    const sorted = [...players].sort((a, b) => b.score - a.score);
+    const vencedor = sorted[0];
 
-            if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
-                // Adiciona ao Hall da Fama no Firebase
-                const dataAtual = new Date();
-                const labelSemana = `Semana ${dataAtual.getDate()}/${dataAtual.getMonth()+1}`;
-                
-                await addDoc(collection(db, "hall_fama"), {
-                    vencedor: vencedor.name,
-                    semana: labelSemana,
-                    data: dataAtual
-                });
+    if(vencedor.score === 0) {
+        alert("Ninguém pontuou! Sem corrida, sem troféu.");
+        return;
+    }
 
-                // Zera o placar de todos
-                players.forEach(p => { p.score = 0; p.best = 24; });
-                await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-                alert(`${vencedor.name} foi imortalizado no Hall da Fama!`);
-            }
-        };
+    if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
+        const d = new Date();
+        // Formata para DD/MM/AAAA sem firulas
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        const dataFormatada = `${dia}/${mes}/${ano}`;
+        
+        try {
+            await addDoc(collection(db, "hall_fama"), {
+                vencedor: vencedor.name,
+                semana: dataFormatada,
+                data: d // Usado para ordenação no Firestore
+            });
+
+            // Zera o placar
+            players.forEach(p => { p.score = 0; p.best = 24; });
+            await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+            
+            alert(`Registro feito: ${vencedor.name} campeão em ${dataFormatada}!`);
+        } catch (e) {
+            alert("Erro ao salvar! Dá uma olhada no console.");
+        }
+    }
+};
 
         function render() {
             const appDiv = document.getElementById('app');
