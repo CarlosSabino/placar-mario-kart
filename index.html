@@ -59,11 +59,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
         let players = [];
 
-        // 1. ESCUTA OS PONTOS
         onSnapshot(doc(db, "mario-kart", "scoreboard"), (docSnap) => {
             if (docSnap.exists()) {
                 players = docSnap.data().players;
@@ -78,7 +76,6 @@
             }
         });
 
-        // 2. ESCUTA O HALL DA FAMA
         onSnapshot(query(collection(db, "hall_fama"), orderBy("data", "desc"), limit(5)), (querySnapshot) => {
             const hallList = document.getElementById('hallList');
             hallList.innerHTML = "";
@@ -88,7 +85,6 @@
             });
         });
 
-        // 3. FUNÇÕES DE ÁUDIO E AÇÃO
         function startMusic() {
             const bg = document.getElementById("musicBg");
             if (bg.paused) {
@@ -103,7 +99,6 @@
             coin.currentTime = 0;
             coin.volume = 0.5;
             coin.play();
-
             players[idx].score += p;
             if (pos < players[idx].best) players[idx].best = pos;
             await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
@@ -120,37 +115,23 @@
         window.finalizarSemana = async () => {
             const sorted = [...players].sort((a, b) => b.score - a.score);
             const vencedor = sorted[0];
-
-            if(vencedor.score === 0) {
-                alert("Ninguém pontuou ainda!");
-                return;
-            }
+            if(vencedor.score === 0) { alert("Ninguém pontuou ainda!"); return; }
 
             if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
                 const bg = document.getElementById("musicBg");
                 const vic = document.getElementById("soundVictory");
-                
                 bg.pause();
                 vic.currentTime = 0;
                 vic.volume = 0.6;
                 vic.play();
 
                 const d = new Date();
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const ano = d.getFullYear();
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                const dataFormatada = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
                 
                 try {
-                    await addDoc(collection(db, "hall_fama"), {
-                        vencedor: vencedor.name,
-                        semana: dataFormatada,
-                        data: d
-                    });
-
+                    await addDoc(collection(db, "hall_fama"), { vencedor: vencedor.name, semana: dataFormatada, data: d });
                     players.forEach(p => { p.score = 0; p.best = 24; });
                     await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-                    
                     alert(`REGISTRADO! ${vencedor.name} é o campeão de ${dataFormatada}!`);
                     bg.play();
                 } catch (e) {
@@ -159,11 +140,9 @@
             }
         };
 
-        // 4. RENDERIZAÇÃO
         function render() {
             const appDiv = document.getElementById('app');
             const sorted = [...players].sort((a, b) => b.score - a.score);
-            
             appDiv.innerHTML = sorted.map(p => {
                 const oIdx = players.findIndex(orig => orig.name === p.name);
                 return `
@@ -181,8 +160,7 @@
                             <button class="btn-extra" onclick="addScore(${oIdx}, 1, 13)">13º+</button>
                             <button class="btn-zero" onclick="addScore(${oIdx}, 0, 24)">0 pts</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
         }
     </script>
