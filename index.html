@@ -32,6 +32,7 @@
     <audio id="soundCoin" src="moeda.mp3"></audio>
     <audio id="soundVictory" src="vitoria.mp3"></audio>
     <audio id="musicBg" src="race_result.mp3" loop></audio>
+    
     <div class="container">
         <h1>MARIO KART BROTHERS</h1>
         <div id="app">Carregando dados da nuvem...</div>
@@ -62,13 +63,12 @@
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
         let players = [];
 
-        // Escuta os pontos em tempo real
+        // 1. ESCUTA OS PONTOS
         onSnapshot(doc(db, "mario-kart", "scoreboard"), (docSnap) => {
             if (docSnap.exists()) {
                 players = docSnap.data().players;
                 render();
             } else {
-                // Inicializa o banco se estiver vazio
                 const initialData = [
                     { name: "Carlão", score: 0, best: 24 },
                     { name: "Gu", score: 0, best: 24 },
@@ -78,7 +78,7 @@
             }
         });
 
-        // Escuta o Hall da Fama em tempo real
+        // 2. ESCUTA O HALL DA FAMA
         onSnapshot(query(collection(db, "hall_fama"), orderBy("data", "desc"), limit(5)), (querySnapshot) => {
             const hallList = document.getElementById('hallList');
             hallList.innerHTML = "";
@@ -88,81 +88,78 @@
             });
         });
 
-        // Função para tocar a música de fundo (uma única vez para iniciar)
-function startMusic() {
-    const bg = document.getElementById("musicBg");
-    if (bg.paused) {
-        bg.volume = 0.3; // Volume de fundo mais baixo
-        bg.play();
-    }
-}
-
-window.addScore = async (idx, p, pos) => {
-    startMusic(); // Inicia a música no primeiro ponto
-
-    const coin = document.getElementById("soundCoin");
-    coin.currentTime = 0;
-    coin.volume = 0.5;
-    coin.play();
-
-    players[idx].score += p;
-    if (pos < players[idx].best) players[idx].best = pos;
-    await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-};
-
-window.finalizarSemana = async () => {
-    const sorted = [...players].sort((a, b) => b.score - a.score);
-    const vencedor = sorted[0];
-
-    if(vencedor.score === 0) {
-        alert("Ninguém pontuou ainda!");
-        return;
-    }
-
-    if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
-        // Para a música de fundo e toca a da vitória
-        const bg = document.getElementById("musicBg");
-        const vic = document.getElementById("soundVictory");
-        
-        bg.pause();
-        vic.currentTime = 0;
-        vic.volume = 0.6;
-        vic.play();
-
-        const d = new Date();
-        const dataFormatada = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-        
-        try {
-            await addDoc(collection(db, "hall_fama"), {
-                vencedor: vencedor.name,
-                semana: dataFormatada,
-                data: d
-            });
-
-            players.forEach(p => { p.score = 0; p.best = 24; });
-            await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-            
-            alert(`REGISTRADO! ${vencedor.name} é o campeão de ${dataFormatada}!`);
-            
-            // Volta a música de fundo após o alerta (opcional)
-            bg.play();
-        } catch (e) {
-            alert("Erro ao salvar no Firebase!");
+        // 3. FUNÇÕES DE ÁUDIO E AÇÃO
+        function startMusic() {
+            const bg = document.getElementById("musicBg");
+            if (bg.paused) {
+                bg.volume = 0.3;
+                bg.play();
+            }
         }
-    }
-};
 
-            // Zera o placar
-            players.forEach(p => { p.score = 0; p.best = 24; });
+        window.addScore = async (idx, p, pos) => {
+            startMusic();
+            const coin = document.getElementById("soundCoin");
+            coin.currentTime = 0;
+            coin.volume = 0.5;
+            coin.play();
+
+            players[idx].score += p;
+            if (pos < players[idx].best) players[idx].best = pos;
             await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-            
-            alert(`Registro feito: ${vencedor.name} campeão em ${dataFormatada}!`);
-        } catch (e) {
-            alert("Erro ao salvar! Dá uma olhada no console.");
-        }
-    }
-};
+        };
 
+        window.clearPlayer = async (idx) => {
+            if(confirm(`Zerar pontos de ${players[idx].name}?`)) {
+                players[idx].score = 0;
+                players[idx].best = 24;
+                await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+            }
+        };
+
+        window.finalizarSemana = async () => {
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            const vencedor = sorted[0];
+
+            if(vencedor.score === 0) {
+                alert("Ninguém pontuou ainda!");
+                return;
+            }
+
+            if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
+                const bg = document.getElementById("musicBg");
+                const vic = document.getElementById("soundVictory");
+                
+                bg.pause();
+                vic.currentTime = 0;
+                vic.volume = 0.6;
+                vic.play();
+
+                const d = new Date();
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const ano = d.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+                
+                try {
+                    await addDoc(collection(db, "hall_fama"), {
+                        vencedor: vencedor.name,
+                        semana: dataFormatada,
+                        data: d
+                    });
+
+                    players.forEach(p => { p.score = 0; p.best = 24; });
+                    await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+                    
+                    alert(`REGISTRADO! ${vencedor.name} é o campeão de ${dataFormatada}!`);
+                    bg.play();
+                } catch (e) {
+                    alert("Erro ao salvar no Firebase!");
+                }
+            }
+        };
+
+        // 4. RENDERIZAÇÃO
         function render() {
             const appDiv = document.getElementById('app');
             const sorted = [...players].sort((a, b) => b.score - a.score);
