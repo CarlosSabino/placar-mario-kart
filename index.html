@@ -11,7 +11,7 @@
             --mk-red: #e74c3c;
             --mk-blue: #3498db;
             --mk-gold: #f1c40f;
-            --mk-dark: rgba(0, 0, 0, 0.85);
+            --mk-dark: rgba(0, 0, 0, 0.88);
         }
 
         body {
@@ -25,14 +25,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            z-index: -1;
         }
 
         .container {
@@ -51,20 +43,19 @@
         h1 {
             text-align: center;
             font-size: 2.1rem;
-            margin: 5px 0 25px 0;
+            margin: 0 0 20px 0;
             color: white;
             text-shadow: 4px 4px 0px var(--mk-red), -2px -2px 0px var(--mk-blue);
             -webkit-text-stroke: 1px black;
-            line-height: 1;
         }
 
         .player-card {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.1);
             margin-bottom: 25px;
             padding: 15px;
             border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .header-info {
@@ -74,8 +65,22 @@
             margin-bottom: 15px;
         }
 
+        .name-area { display: flex; flex-direction: column; }
         .name { font-size: 1.6rem; color: var(--mk-gold); text-shadow: 2px 2px 0px black; }
-        .total-pts { font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 4px black; }
+        .total-pts { font-size: 2.2rem; font-weight: bold; text-shadow: 2px 2px 4px black; }
+
+        .btn-clear-player {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--mk-red);
+            color: var(--mk-red);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 5px;
+            width: fit-content;
+        }
 
         .grid-buttons {
             display: grid;
@@ -87,16 +92,16 @@
             font-family: 'Fredoka One', cursive;
             border: none;
             border-radius: 12px;
-            padding: 14px 0;
+            padding: 12px 0;
             cursor: pointer;
             color: white;
             text-shadow: 1px 1px 2px black;
             transition: 0.1s;
-            font-size: 1rem;
+            font-size: 0.9rem;
             box-shadow: 0 4px 0 rgba(0,0,0,0.5);
         }
 
-        button:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); filter: brightness(1.1); }
+        button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); filter: brightness(1.1); }
 
         .btn-pts { background: var(--mk-blue); border-bottom: 4px solid #2980b9; }
         .btn-extra { background: #27ae60; border-bottom: 4px solid #1e8449; grid-column: span 2; }
@@ -110,7 +115,7 @@
             border: 3px dashed var(--mk-gold);
         }
 
-        .hall-title { text-align: center; color: var(--mk-gold); margin-bottom: 12px; font-size: 1.2rem; text-shadow: 2px 2px 0px black; }
+        .hall-title { text-align: center; color: var(--mk-gold); margin-bottom: 10px; font-size: 1.1rem; }
 
         .reset-btn {
             width: 100%;
@@ -120,13 +125,10 @@
             border-radius: 25px;
             font-size: 1.3rem;
             color: white;
-            border: none;
             border-bottom: 7px solid #b03a2e;
             cursor: pointer;
             text-shadow: 2px 2px 0px black;
         }
-
-        .record-text { font-size: 0.85rem; color: #ddd; display: block; }
     </style>
 </head>
 <body>
@@ -139,7 +141,7 @@
 
         <div class="hall-fame">
             <div class="hall-title">🌟 HALL DA FAMA 🌟</div>
-            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 5px;">
+            <div style="display: flex; justify-content: space-between; font-size: 1rem; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 5px;">
                 <span>Semana 02 - Fev/2026</span>
                 <span style="color: var(--mk-gold);">Chicão 👑</span>
             </div>
@@ -147,8 +149,8 @@
     </div>
 
     <script>
-        // Versão 10 - Mario Kart Brothers!
-        let players = JSON.parse(localStorage.getItem('mk_brothers_v1')) || [
+        // Versão 11 - Com Limpeza Individual
+        let players = JSON.parse(localStorage.getItem('mk_brothers_v2')) || [
             { name: "Carlão", score: 0, best: 24 },
             { name: "Gu", score: 0, best: 24 },
             { name: "Chicão", score: 0, best: 24 }
@@ -157,7 +159,7 @@
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
         function save() {
-            localStorage.setItem('mk_brothers_v1', JSON.stringify(players));
+            localStorage.setItem('mk_brothers_v2', JSON.stringify(players));
             render();
         }
 
@@ -167,8 +169,16 @@
             save();
         }
 
+        function clearPlayer(idx) {
+            if(confirm(`Zerar apenas os pontos de ${players[idx].name}?`)) {
+                players[idx].score = 0;
+                players[idx].best = 24;
+                save();
+            }
+        }
+
         function resetAll() {
-            if(confirm("Deseja zerar os pontos para a nova semana de Mario Kart Brothers?")) {
+            if(confirm("Zerar o placar de TODOS para a nova semana?")) {
                 players.forEach(p => { p.score = 0; p.best = 24; });
                 save();
             }
@@ -183,17 +193,18 @@
                 return `
                     <div class="player-card">
                         <div class="header-info">
-                            <div>
-                                <div class="name">${p.name}</div>
-                                <span class="record-text">MELHOR GLOBAL: #${p.best}º</span>
+                            <div class="name-area">
+                                <span class="name">${p.name}</span>
+                                <small style="color:#aaa; font-size:0.7rem">MELHOR: #${p.best}º</small>
+                                <button class="btn-clear-player" onclick="clearPlayer(${oIdx})">Zerar este</button>
                             </div>
-                            <div class="total-pts">${p.score} <small style="font-size: 0.9rem">PTS</small></div>
+                            <div class="total-pts">${p.score} <small style="font-size:0.8rem">PTS</small></div>
                         </div>
                         <div class="grid-buttons">
                             ${ptsTable.map((pts, i) => `
                                 <button class="btn-pts" onclick="add(${oIdx}, ${pts}, ${i+1})">${i+1}º</button>
                             `).join('')}
-                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º+ (1pt)</button>
+                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º+</button>
                             <button class="btn-zero" onclick="add(${oIdx}, 0, 24)">0 pts</button>
                         </div>
                     </div>
