@@ -3,114 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MK World - Trio Scoreboard</title>
+    <title>MK World - Ranking Semanal</title>
     <style>
-        :root { --primary: #e74c3c; --bg: #0b0e14; --card: #1c2128; --text: #f0f6fc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid #30363d; }
-        h1 { color: var(--primary); text-align: center; font-size: 1.4rem; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        .player-card { display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px solid #30363d; }
-        .player-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .player-name { font-size: 1.2rem; font-weight: bold; }
-        .player-stats { display: flex; gap: 15px; font-size: 0.9rem; color: #8b949e; }
-        .highlight { color: #f1c40f; font-weight: bold; font-size: 1.1rem; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        button { border: none; border-radius: 6px; padding: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; color: white; }
-        .p15 { background: #238636; } .p10 { background: #1f6feb; } .p5 { background: #8957e5; }
-        .btn-record { background: #d29922; grid-column: span 3; margin-top: 5px; font-size: 0.8rem; }
-        .reset-container { margin-top: 25px; display: flex; gap: 10px; }
-        .btn-reset { background: #da3633; flex: 1; }
-        #history { margin-top: 20px; width: 100%; font-size: 0.8rem; color: #8b949e; text-align: left; }
+        :root { --primary: #e74c3c; --bg: #0b0e14; --card: #1c2128; --text: #f0f6fc; --gold: #f1c40f; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; background: var(--card); border-radius: 12px; padding: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid #30363d; }
+        h1 { color: var(--primary); text-align: center; font-size: 1.2rem; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
+        .player-card { background: #21262d; margin-bottom: 15px; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); position: relative; }
+        .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .player-name { font-size: 1.3rem; font-weight: bold; }
+        .player-score { font-size: 1.6rem; color: var(--gold); font-weight: bold; }
+        .best-label { font-size: 0.8rem; color: #8b949e; display: block; }
+        .grid-points { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        button { border: none; border-radius: 4px; padding: 10px 0; cursor: pointer; font-weight: bold; color: white; font-size: 0.8rem; transition: 0.1s; }
+        .btn-pts { background: #30363d; border: 1px solid #444; }
+        .btn-pts:active { background: #238636; transform: scale(0.95); }
+        .btn-extra { background: #444; grid-column: span 2; border: 1px dashed #666; }
+        .btn-record { background: #d29922; width: 100%; margin-top: 10px; }
+        .reset-btn { background: #da3633; width: 100%; padding: 15px; margin-top: 20px; border-radius: 6px; font-size: 1rem; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🏁 MK World Trio</h1>
+        <h1>🏆 Placar Trio - Decisão de Sexta</h1>
         <div id="app"></div>
-
-        <div class="reset-container">
-            <button class="btn-reset" onclick="resetAll()">Zerar Placar</button>
-        </div>
-
-        <div id="history">
-            <strong>Últimas Ações:</strong>
-            <ul id="historyList"></ul>
-        </div>
+        <button class="reset-btn" onclick="resetAll()">🏆 Encerrar Semana / Zerar Tudo</button>
     </div>
 
     <script>
-        let players = JSON.parse(localStorage.getItem('mk_trio_v2')) || [
-            { name: "Carlão", score: 0, bestGlobal: '-' },
-            { name: "Gu", score: 0, bestGlobal: '-' },
-            { name: "Chicão", score: 0, bestGlobal: '-' }
+        let players = JSON.parse(localStorage.getItem('mk_final_v3')) || [
+            { name: "Carlão", score: 0, best: 24 },
+            { name: "Gu", score: 0, best: 24 },
+            { name: "Chicão", score: 0, best: 24 }
         ];
 
-        let history = JSON.parse(localStorage.getItem('mk_history')) || [];
+        const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
         function save() {
-            localStorage.setItem('mk_trio_v2', JSON.stringify(players));
-            localStorage.setItem('mk_history', JSON.stringify(history));
+            localStorage.setItem('mk_final_v3', JSON.stringify(players));
             render();
         }
 
-        function addScore(idx, pts) {
-            players[idx].score += pts;
-            history.unshift(`${players[idx].name} +${pts} pts`);
-            if(history.length > 5) history.pop();
+        function add(idx, p, posReal) {
+            players[idx].score += p;
+            // Atualiza recorde se a posição enviada for melhor que a atual
+            if (posReal < players[idx].best) {
+                players[idx].best = posReal;
+            }
             save();
         }
 
-        function setRecord(idx) {
-            const pos = prompt(`Qual foi a posição global do ${players[idx].name} (1-24)?`);
-            if(pos && !isNaN(pos)) {
-                if(players[idx].bestGlobal === '-' || parseInt(pos) < parseInt(players[idx].bestGlobal)) {
-                    players[idx].bestGlobal = pos;
-                    alert("Novo Recorde Pessoal!");
-                }
-                save();
-            }
+        function setManualBest(idx) {
+            let b = prompt(`Qual a melhor posição global do ${players[idx].name} até agora (1-24)?`);
+            if(b && !isNaN(b)) { players[idx].best = parseInt(b); save(); }
         }
 
         function resetAll() {
-            if(confirm("Deseja zerar todos os pontos e recordes?")) {
-                players.forEach(p => { p.score = 0; p.bestGlobal = '-'; });
-                history = [];
+            if(confirm("Isso vai apagar todos os pontos e recordes da semana. Confirmar?")) {
+                players.forEach(p => { p.score = 0; p.best = 24; });
                 save();
             }
         }
 
         function render() {
             const app = document.getElementById('app');
-            const historyList = document.getElementById('historyList');
-            
-            // Ordena pelo score para o líder ficar no topo
             const sorted = [...players].sort((a, b) => b.score - a.score);
             
             app.innerHTML = sorted.map(p => {
                 const oIdx = players.findIndex(orig => orig.name === p.name);
                 return `
                     <div class="player-card">
-                        <div class="player-info">
-                            <div class="player-name">${p.name}</div>
-                            <div class="player-stats">
-                                <span>Pontos: <span class="highlight">${p.score}</span></span>
-                                <span>Recorde: <span style="color:#e74c3c">#${p.bestGlobal}</span></span>
+                        <div class="player-header">
+                            <div>
+                                <span class="player-name">${p.name}</span>
+                                <span class="best-label">Melhor Global: #${p.best}º</span>
                             </div>
+                            <span class="player-score">${p.score} <small style="font-size:0.7rem">PTS</small></span>
                         </div>
-                        <div class="btn-group">
-                            <button class="p15" onclick="addScore(${oIdx}, 15)">+15</button>
-                            <button class="p10" onclick="addScore(${oIdx}, 10)">+10</button>
-                            <button class="p5" onclick="addScore(${oIdx}, 5)">+5</button>
-                            <button class="btn-record" onclick="setRecord(${oIdx})">Registrar Posição Global (1-24)</button>
+                        <div class="grid-points">
+                            ${ptsTable.map((pts, i) => `
+                                <button class="btn-pts" onclick="add(${oIdx}, ${pts}, ${i+1})">
+                                    ${i+1}º (${pts})
+                                </button>
+                            `).join('')}
+                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º ou + (1pt)</button>
+                            <button class="btn-extra" style="background:#555" onclick="add(${oIdx}, 0, 24)">0 pts</button>
                         </div>
+                        <button class="btn-record" onclick="setManualBest(${oIdx})">Ajustar Recorde Manual</button>
                     </div>
                 `;
             }).join('');
-
-            historyList.innerHTML = history.map(h => `<li>${h}</li>`).join('');
         }
-
         render();
     </script>
 </body>
