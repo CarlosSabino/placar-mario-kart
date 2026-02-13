@@ -7,32 +7,56 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
         :root { --mk-red: #e74c3c; --mk-blue: #3498db; --mk-gold: #f1c40f; --mk-dark: rgba(0, 0, 0, 0.88); }
-        body { font-family: 'Fredoka One', cursive; background: url('https://nintendoboy.com.br/wp-content/uploads/2025/04/20250417_111824.jpg') no-repeat center center fixed; background-size: cover; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; background: var(--mk-dark); border: 5px solid var(--mk-gold); border-radius: 35px; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); backdrop-filter: blur(10px); box-sizing: border-box; margin-top: 10px; }
+        
+        body { font-family: 'Fredoka One', cursive; background: url('https://nintendoboy.com.br/wp-content/uploads/2025/04/20250417_111824.jpg') no-repeat center center fixed; background-size: cover; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+
+        /* Overlay do Casco Azul */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--mk-dark); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; }
+        #overlay img { width: 150px; animation: spin 2s linear infinite; filter: drop-shadow(0 0 15px var(--mk-blue)); }
+        #overlay p { margin-top: 20px; font-size: 1.5rem; color: var(--mk-gold); text-shadow: 2px 2px 0 black; }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .container { width: 100%; max-width: 450px; background: var(--mk-dark); border: 5px solid var(--mk-gold); border-radius: 35px; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); backdrop-filter: blur(10px); box-sizing: border-box; margin-top: 10px; z-index: 10; }
+        
         h1 { text-align: center; font-size: 2.1rem; margin: 0 0 20px 0; color: white; text-shadow: 4px 4px 0px var(--mk-red), -2px -2px 0px var(--mk-blue); -webkit-text-stroke: 1px black; }
+
         .player-card { background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); position: relative; }
         .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .name-area { display: flex; flex-direction: column; }
         .name { font-size: 1.6rem; color: var(--mk-gold); text-shadow: 2px 2px 0px black; }
         .total-pts { font-size: 2.2rem; font-weight: bold; text-shadow: 2px 2px 4px black; }
-        .btn-clear-player { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--mk-red); color: var(--mk-red); padding: 4px 8px; border-radius: 8px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; margin-top: 5px; width: fit-content; }
+        
+        /* Botão Mudo */
+        #muteBtn { position: fixed; bottom: 20px; right: 20px; background: var(--mk-gold); border: 3px solid black; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 100; }
+
         .grid-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         button { font-family: 'Fredoka One', cursive; border: none; border-radius: 12px; padding: 12px 0; cursor: pointer; color: white; text-shadow: 1px 1px 2px black; transition: 0.1s; font-size: 0.9rem; box-shadow: 0 4px 0 rgba(0,0,0,0.5); }
-        button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); filter: brightness(1.1); }
+        button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); }
+
         .btn-pts { background: var(--mk-blue); border-bottom: 4px solid #2980b9; }
         .btn-extra { background: #27ae60; border-bottom: 4px solid #1e8449; grid-column: span 2; }
         .btn-zero { background: #8e44ad; border-bottom: 4px solid #70368a; grid-column: span 2; }
+        .btn-clear-player { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--mk-red); color: var(--mk-red); padding: 4px 8px; border-radius: 8px; font-size: 0.6rem; margin-top: 5px; }
+
         .hall-fame { margin-top: 30px; background: rgba(255, 215, 0, 0.1); border-radius: 25px; padding: 15px; border: 3px dashed var(--mk-gold); }
         .hall-title { text-align: center; color: var(--mk-gold); margin-bottom: 10px; font-size: 1.1rem; }
         .hall-entry { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid rgba(255,215,0,0.2); padding: 5px 0; }
-        .reset-btn { width: 100%; background: var(--mk-red); padding: 18px; margin-top: 25px; border-radius: 25px; font-size: 1.3rem; color: white; border-bottom: 7px solid #b03a2e; cursor: pointer; text-shadow: 2px 2px 0px black; }
+        
+        .reset-btn { width: 100%; background: var(--mk-red); padding: 18px; margin-top: 25px; border-radius: 25px; font-size: 1.3rem; color: white; border-bottom: 7px solid #b03a2e; cursor: pointer; }
     </style>
 </head>
 <body>
+    <div id="overlay" onclick="iniciarTudo()">
+        <img src="blueshell.webp" alt="Casco Azul" style="width: 180px; filter: drop-shadow(0 0 20px #3498db);">
+        <p>CLIQUE NO CASCO PARA LARGAR!</p>
+    </div>
+
     <audio id="soundCoin" src="moeda.mp3"></audio>
     <audio id="soundVictory" src="vitoria.mp3"></audio>
     <audio id="musicBg" src="race_result.mp3" loop></audio>
     
+    <button id="muteBtn" onclick="toggleMute()">🔊</button>
+
     <div class="container">
         <h1>MARIO KART BROTHERS</h1>
         <div id="app">Carregando dados da nuvem...</div>
@@ -62,18 +86,10 @@
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
         let players = [];
 
+        // ESCUTA REALTIME
         onSnapshot(doc(db, "mario-kart", "scoreboard"), (docSnap) => {
-            if (docSnap.exists()) {
-                players = docSnap.data().players;
-                render();
-            } else {
-                const initialData = [
-                    { name: "Carlão", score: 0, best: 24 },
-                    { name: "Gu", score: 0, best: 24 },
-                    { name: "Chicão", score: 0, best: 24 }
-                ];
-                setDoc(doc(db, "mario-kart", "scoreboard"), { players: initialData });
-            }
+            if (docSnap.exists()) { players = docSnap.data().players; render(); }
+            else { setDoc(doc(db, "mario-kart", "scoreboard"), { players: [{name:"Carlão",score:0,best:24},{name:"Gu",score:0,best:24},{name:"Chicão",score:0,best:24}] }); }
         });
 
         onSnapshot(query(collection(db, "hall_fama"), orderBy("data", "desc"), limit(5)), (querySnapshot) => {
@@ -85,20 +101,24 @@
             });
         });
 
-        function startMusic() {
+        // FUNÇÕES GLOBAIS
+        window.iniciarTudo = () => {
+            document.getElementById('overlay').style.display = 'none';
             const bg = document.getElementById("musicBg");
-            if (bg.paused) {
-                bg.volume = 0.3;
-                bg.play();
-            }
-        }
+            bg.volume = 0.3;
+            bg.play();
+        };
+
+        window.toggleMute = () => {
+            const bg = document.getElementById("musicBg");
+            const btn = document.getElementById("muteBtn");
+            if (bg.muted) { bg.muted = false; btn.innerText = "🔊"; }
+            else { bg.muted = true; btn.innerText = "🔇"; }
+        };
 
         window.addScore = async (idx, p, pos) => {
-            startMusic();
             const coin = document.getElementById("soundCoin");
-            coin.currentTime = 0;
-            coin.volume = 0.5;
-            coin.play();
+            coin.currentTime = 0; coin.volume = 0.5; coin.play();
             players[idx].score += p;
             if (pos < players[idx].best) players[idx].best = pos;
             await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
@@ -106,8 +126,7 @@
 
         window.clearPlayer = async (idx) => {
             if(confirm(`Zerar pontos de ${players[idx].name}?`)) {
-                players[idx].score = 0;
-                players[idx].best = 24;
+                players[idx].score = 0; players[idx].best = 24;
                 await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
             }
         };
@@ -115,28 +134,23 @@
         window.finalizarSemana = async () => {
             const sorted = [...players].sort((a, b) => b.score - a.score);
             const vencedor = sorted[0];
-            if(vencedor.score === 0) { alert("Ninguém pontuou ainda!"); return; }
+            if(vencedor.score === 0) return alert("Ninguém pontuou!");
 
             if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
                 const bg = document.getElementById("musicBg");
                 const vic = document.getElementById("soundVictory");
-                bg.pause();
-                vic.currentTime = 0;
-                vic.volume = 0.6;
-                vic.play();
+                bg.pause(); vic.currentTime = 0; vic.volume = 0.6; vic.play();
 
                 const d = new Date();
-                const dataFormatada = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                const dataFormatada = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
                 
                 try {
                     await addDoc(collection(db, "hall_fama"), { vencedor: vencedor.name, semana: dataFormatada, data: d });
                     players.forEach(p => { p.score = 0; p.best = 24; });
                     await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-                    alert(`REGISTRADO! ${vencedor.name} é o campeão de ${dataFormatada}!`);
+                    alert(`REGISTRADO! ${vencedor.name} é o campeão!`);
                     bg.play();
-                } catch (e) {
-                    alert("Erro ao salvar no Firebase!");
-                }
+                } catch (e) { alert("Erro ao salvar!"); }
             }
         };
 
@@ -151,7 +165,7 @@
                             <div class="name-area">
                                 <span class="name">${p.name}</span>
                                 <small style="color:#aaa; font-size:0.7rem">MELHOR: #${p.best}º</small>
-                                <button class="btn-clear-player" onclick="clearPlayer(${oIdx})">Zerar este</button>
+                                <button class="btn-clear-player" onclick="clearPlayer(${oIdx})">Zerar</button>
                             </div>
                             <div class="total-pts">${p.score} <small style="font-size:0.8rem">PTS</small></div>
                         </div>
