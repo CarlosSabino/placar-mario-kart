@@ -3,192 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mario Kart Brothers - Scoreboard</title>
+    <title>Mario Kart Brothers - Cloud Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
-        :root {
-            --mk-red: #e74c3c;
-            --mk-blue: #3498db;
-            --mk-gold: #f1c40f;
-            --mk-dark: rgba(0, 0, 0, 0.88);
-        }
-
-        body {
-            font-family: 'Fredoka One', cursive;
-            background: url('https://nintendoboy.com.br/wp-content/uploads/2025/04/20250417_111824.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--mk-dark);
-            border: 5px solid var(--mk-gold);
-            border-radius: 35px;
-            padding: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            box-sizing: border-box;
-            margin-top: 10px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 2.1rem;
-            margin: 0 0 20px 0;
-            color: white;
-            text-shadow: 4px 4px 0px var(--mk-red), -2px -2px 0px var(--mk-blue);
-            -webkit-text-stroke: 1px black;
-        }
-
-        .player-card {
-            background: rgba(255, 255, 255, 0.1);
-            margin-bottom: 25px;
-            padding: 15px;
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-        }
-
-        .header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
+        :root { --mk-red: #e74c3c; --mk-blue: #3498db; --mk-gold: #f1c40f; --mk-dark: rgba(0, 0, 0, 0.88); }
+        body { font-family: 'Fredoka One', cursive; background: url('https://nintendoboy.com.br/wp-content/uploads/2025/04/20250417_111824.jpg') no-repeat center center fixed; background-size: cover; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; background: var(--mk-dark); border: 5px solid var(--mk-gold); border-radius: 35px; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); backdrop-filter: blur(10px); box-sizing: border-box; margin-top: 10px; }
+        h1 { text-align: center; font-size: 2.1rem; margin: 0 0 20px 0; color: white; text-shadow: 4px 4px 0px var(--mk-red), -2px -2px 0px var(--mk-blue); -webkit-text-stroke: 1px black; }
+        .player-card { background: rgba(255, 255, 255, 0.1); margin-bottom: 25px; padding: 15px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); position: relative; }
+        .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .name-area { display: flex; flex-direction: column; }
         .name { font-size: 1.6rem; color: var(--mk-gold); text-shadow: 2px 2px 0px black; }
         .total-pts { font-size: 2.2rem; font-weight: bold; text-shadow: 2px 2px 4px black; }
-
-        .btn-clear-player {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid var(--mk-red);
-            color: var(--mk-red);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 0.6rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 5px;
-            width: fit-content;
-        }
-
-        .grid-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        button {
-            font-family: 'Fredoka One', cursive;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 0;
-            cursor: pointer;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            transition: 0.1s;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
-        }
-
+        .btn-clear-player { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--mk-red); color: var(--mk-red); padding: 4px 8px; border-radius: 8px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; margin-top: 5px; width: fit-content; }
+        .grid-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        button { font-family: 'Fredoka One', cursive; border: none; border-radius: 12px; padding: 12px 0; cursor: pointer; color: white; text-shadow: 1px 1px 2px black; transition: 0.1s; font-size: 0.9rem; box-shadow: 0 4px 0 rgba(0,0,0,0.5); }
         button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); filter: brightness(1.1); }
-
         .btn-pts { background: var(--mk-blue); border-bottom: 4px solid #2980b9; }
         .btn-extra { background: #27ae60; border-bottom: 4px solid #1e8449; grid-column: span 2; }
         .btn-zero { background: #8e44ad; border-bottom: 4px solid #70368a; grid-column: span 2; }
-
-        .hall-fame {
-            margin-top: 30px;
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 25px;
-            padding: 15px;
-            border: 3px dashed var(--mk-gold);
-        }
-
+        .hall-fame { margin-top: 30px; background: rgba(255, 215, 0, 0.1); border-radius: 25px; padding: 15px; border: 3px dashed var(--mk-gold); }
         .hall-title { text-align: center; color: var(--mk-gold); margin-bottom: 10px; font-size: 1.1rem; }
-
-        .reset-btn {
-            width: 100%;
-            background: var(--mk-red);
-            padding: 18px;
-            margin-top: 25px;
-            border-radius: 25px;
-            font-size: 1.3rem;
-            color: white;
-            border-bottom: 7px solid #b03a2e;
-            cursor: pointer;
-            text-shadow: 2px 2px 0px black;
-        }
+        .hall-entry { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid rgba(255,215,0,0.2); padding: 5px 0; }
+        .reset-btn { width: 100%; background: var(--mk-red); padding: 18px; margin-top: 25px; border-radius: 25px; font-size: 1.3rem; color: white; border-bottom: 7px solid #b03a2e; cursor: pointer; text-shadow: 2px 2px 0px black; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>MARIO KART BROTHERS</h1>
-        
-        <div id="app"></div>
-
-        <button class="reset-btn" onclick="resetAll()">🏁 FINALIZAR SEMANA</button>
-
+        <div id="app">Carregando dados da nuvem...</div>
+        <button class="reset-btn" onclick="finalizarSemana()">🏁 FINALIZAR SEMANA</button>
         <div class="hall-fame">
             <div class="hall-title">🌟 HALL DA FAMA 🌟</div>
-            <div style="display: flex; justify-content: space-between; font-size: 1rem; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 5px;">
-                <span>Semana 02 - Fev/2026</span>
-                <span style="color: var(--mk-gold);">Chicão 👑</span>
-            </div>
+            <div id="hallList">Carregando campeões...</div>
         </div>
     </div>
 
-    <script>
-        // Versão 11 - Com Limpeza Individual
-        let players = JSON.parse(localStorage.getItem('mk_brothers_v2')) || [
-            { name: "Carlão", score: 0, best: 24 },
-            { name: "Gu", score: 0, best: 24 },
-            { name: "Chicão", score: 0, best: 24 }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDu-66630YK500EMO1g7K4M0dZgNSdNm4Q",
+            authDomain: "controlepeso-d5897.firebaseapp.com",
+            databaseURL: "https://controlepeso-d5897-default-rtdb.firebaseio.com",
+            projectId: "controlepeso-d5897",
+            storageBucket: "controlepeso-d5897.firebasestorage.app",
+            messagingSenderId: "471187898717",
+            appId: "1:471187898717:web:7f5adde9afe600355b68b4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         const ptsTable = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let players = [];
 
-        function save() {
-            localStorage.setItem('mk_brothers_v2', JSON.stringify(players));
-            render();
-        }
+        // Escuta os pontos em tempo real
+        onSnapshot(doc(db, "mario-kart", "scoreboard"), (docSnap) => {
+            if (docSnap.exists()) {
+                players = docSnap.data().players;
+                render();
+            } else {
+                // Inicializa o banco se estiver vazio
+                const initialData = [
+                    { name: "Carlão", score: 0, best: 24 },
+                    { name: "Gu", score: 0, best: 24 },
+                    { name: "Chicão", score: 0, best: 24 }
+                ];
+                setDoc(doc(db, "mario-kart", "scoreboard"), { players: initialData });
+            }
+        });
 
-        function add(idx, p, pos) {
+        // Escuta o Hall da Fama em tempo real
+        onSnapshot(query(collection(db, "hall_fama"), orderBy("data", "desc"), limit(5)), (querySnapshot) => {
+            const hallList = document.getElementById('hallList');
+            hallList.innerHTML = "";
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                hallList.innerHTML += `<div class="hall-entry"><span>${data.semana}</span><span style="color:var(--mk-gold)">${data.vencedor} 👑</span></div>`;
+            });
+        });
+
+        window.addScore = async (idx, p, pos) => {
             players[idx].score += p;
             if (pos < players[idx].best) players[idx].best = pos;
-            save();
-        }
+            await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+        };
 
-        function clearPlayer(idx) {
-            if(confirm(`Zerar apenas os pontos de ${players[idx].name}?`)) {
+        window.clearPlayer = async (idx) => {
+            if(confirm(`Zerar pontos de ${players[idx].name}?`)) {
                 players[idx].score = 0;
                 players[idx].best = 24;
-                save();
+                await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
             }
-        }
+        };
 
-        function resetAll() {
-            if(confirm("Zerar o placar de TODOS para a nova semana?")) {
+        window.finalizarSemana = async () => {
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            const vencedor = sorted[0];
+
+            if(confirm(`Finalizar semana e coroar ${vencedor.name}?`)) {
+                // Adiciona ao Hall da Fama no Firebase
+                const dataAtual = new Date();
+                const labelSemana = `Semana ${dataAtual.getDate()}/${dataAtual.getMonth()+1}`;
+                
+                await addDoc(collection(db, "hall_fama"), {
+                    vencedor: vencedor.name,
+                    semana: labelSemana,
+                    data: dataAtual
+                });
+
+                // Zera o placar de todos
                 players.forEach(p => { p.score = 0; p.best = 24; });
-                save();
+                await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+                alert(`${vencedor.name} foi imortalizado no Hall da Fama!`);
             }
-        }
+        };
 
         function render() {
-            const app = document.getElementById('app');
+            const appDiv = document.getElementById('app');
             const sorted = [...players].sort((a, b) => b.score - a.score);
             
-            app.innerHTML = sorted.map(p => {
+            appDiv.innerHTML = sorted.map(p => {
                 const oIdx = players.findIndex(orig => orig.name === p.name);
                 return `
                     <div class="player-card">
@@ -201,17 +138,14 @@
                             <div class="total-pts">${p.score} <small style="font-size:0.8rem">PTS</small></div>
                         </div>
                         <div class="grid-buttons">
-                            ${ptsTable.map((pts, i) => `
-                                <button class="btn-pts" onclick="add(${oIdx}, ${pts}, ${i+1})">${i+1}º</button>
-                            `).join('')}
-                            <button class="btn-extra" onclick="add(${oIdx}, 1, 13)">13º+</button>
-                            <button class="btn-zero" onclick="add(${oIdx}, 0, 24)">0 pts</button>
+                            ${ptsTable.map((pts, i) => `<button class="btn-pts" onclick="addScore(${oIdx}, ${pts}, ${i+1})">${i+1}º</button>`).join('')}
+                            <button class="btn-extra" onclick="addScore(${oIdx}, 1, 13)">13º+</button>
+                            <button class="btn-zero" onclick="addScore(${oIdx}, 0, 24)">0 pts</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
-        render();
     </script>
 </body>
 </html>
