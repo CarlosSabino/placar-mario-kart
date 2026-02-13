@@ -29,6 +29,7 @@
     </style>
 </head>
 <body>
+    <audio id="coinSound" src="https://www.myinstants.com/media/sounds/mario-coin.mp3"></audio>
     <div class="container">
         <h1>MARIO KART BROTHERS</h1>
         <div id="app">Carregando dados da nuvem...</div>
@@ -86,10 +87,16 @@
         });
 
         window.addScore = async (idx, p, pos) => {
-            players[idx].score += p;
-            if (pos < players[idx].best) players[idx].best = pos;
-            await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
-        };
+    // Toca o som da moeda
+    const sound = document.getElementById("coinSound");
+    sound.currentTime = 0; // Reinicia o som caso cliquem rápido demais
+    sound.play();
+
+    players[idx].score += p;
+    if (pos < players[idx].best) players[idx].best = pos;
+    await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
+};
+
 
         window.clearPlayer = async (idx) => {
             if(confirm(`Zerar pontos de ${players[idx].name}?`)) {
