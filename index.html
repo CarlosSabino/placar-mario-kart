@@ -90,30 +90,54 @@
         });
 
         async function updateHiScore() {
-            const querySnapshot = await getDocs(collection(db, "hall_fama"));
-            let stats = { "Carlão": { wins: 0, lastScore: 0 }, "Gu": { wins: 0, lastScore: 0 }, "Chicão": { wins: 0, lastScore: 0 } };
-            querySnapshot.forEach((doc) => {
-                const d = doc.data();
-                if(stats[d.vencedor]) {
-                    stats[d.vencedor].wins++;
-                    stats[d.vencedor].lastScore = d.pontos_finais || 0;
-                }
-            });
-            const sortedStats = Object.entries(stats).sort((a, b) => b[1].wins - a[1].wins);
-            document.getElementById('hiScoreList').innerHTML = sortedStats.map(([name, data], index) => {
-                const isChampion = index === 0 && data.wins > 0;
-                return `
-                    <div class="hi-entry ${isChampion ? 'champion-row' : ''}">
-                        <div style="font-size:0.9rem;">
-                            <span>${name} ${isChampion ? '👑' : ''}</span><br>
-                            ${isChampion ? '<small style="color:var(--mk-gold); font-size:0.6rem">CAMPEÃO</small>' : ''}
-                        </div>
-                        <div style="text-align:right">
-                            <span style="font-size:1rem">${data.wins} Vitórias</span><br>
-                            <small style="font-size:0.55rem; color:#aaa">RECORD: ${data.lastScore} PTS</small>
-                        </div>
-                    </div>`;
-            }).join('');
+            try {
+                const querySnapshot = await getDocs(collection(db, "hall_fama"));
+                // Inicializa stats para os 3 jogadores
+                let stats = { 
+                    "Carlão": { wins: 0, totalScore: 0 }, 
+                    "Gu": { wins: 0, totalScore: 0 }, 
+                    "Chicão": { wins: 0, totalScore: 0 } 
+                };
+
+                querySnapshot.forEach((doc) => {
+                    const d = doc.data();
+                    
+                    // 1. Contabiliza vitória para o campeão
+                    if(stats[d.vencedor]) {
+                        stats[d.vencedor].wins++;
+                    }
+
+                    // 2. Soma a pontuação de TODOS que estavam naquela semana
+                    if(d.todos_scores) {
+                        d.todos_scores.forEach(p => {
+                            if(stats[p.name]) {
+                                stats[p.name].totalScore += p.score;
+                            }
+                        });
+                    } else if (d.vencedor && d.pontos_finais) {
+                        // Fallback para registros antigos onde só salvamos o vencedor
+                        stats[d.vencedor].totalScore += d.pontos_finais;
+                    }
+                });
+
+                const sortedStats = Object.entries(stats).sort((a, b) => b[1].wins - a[1].wins);
+                const hiList = document.getElementById('hiScoreList');
+                
+                hiList.innerHTML = sortedStats.map(([name, data], index) => {
+                    const isChampion = index === 0 && data.wins > 0;
+                    return `
+                        <div class="hi-entry ${isChampion ? 'champion-row' : ''}">
+                            <div style="font-size:0.9rem;">
+                                <span>${name} ${isChampion ? '👑' : ''}</span><br>
+                                ${isChampion ? '<small style="color:var(--mk-gold); font-size:0.6rem">CAMPEÃO</small>' : ''}
+                            </div>
+                            <div style="text-align:right">
+                                <span style="font-size:1rem">${data.wins} Vitórias</span><br>
+                                <small style="font-size:0.55rem; color:#aaa">${data.totalScore} PTS</small>
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch (e) { console.error(e); }
         }
 
         window.toggleHistory = async () => {
@@ -128,7 +152,6 @@
                 historyContent.innerHTML = "";
                 querySnapshot.forEach((doc) => {
                     const d = doc.data();
-                    // Verifica se temos o array de todos os jogadores (novos registros)
                     let playersList = "";
                     if(d.todos_scores) {
                         playersList = d.todos_scores.map(p => `
@@ -172,14 +195,14 @@
             const sorted = [...players].sort((a, b) => b.score - a.score);
             const vencedor = sorted[0];
             if(vencedor.score === 0) return alert("Ninguém pontuou!");
-            if(confirm(`Fechar semana e salvar histórico dos 3?`)) {
+            if(confirm(`Finalizar semana e salvar histórico total?`)) {
                 const vic = document.getElementById("soundVictory");
                 document.getElementById("musicBg").pause(); vic.play();
                 try {
                     await addDoc(collection(db, "hall_fama"), {
                         vencedor: vencedor.name,
                         pontos_finais: vencedor.score,
-                        todos_scores: players.map(p => ({name: p.name, score: p.score})), // Salva os 3!
+                        todos_scores: players.map(p => ({name: p.name, score: p.score})),
                         data: new Date(),
                         semana: new Date().toLocaleDateString()
                     });
