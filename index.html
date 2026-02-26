@@ -14,11 +14,11 @@
         #overlay img { width: 140px; animation: spin 2s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Estilos do Modal de Histórico (Inalterado) */
+        /* Estilos do Modal de Histórico */
         #historyModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 380px; background: #1a1a1a; border: 4px solid var(--mk-blue); border-radius: 25px; z-index: 2000; padding: 15px; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px black; }
         .history-card { background: #252525; border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid #444; }
         .history-header { display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid #444; padding-bottom: 8px; margin-bottom: 8px; color: #eee; }
-        .history-player { display: flex; justify-content: space-between; font-size: 0.95rem; padding: 4px 0; }
+        .history-player { display: flex; justify-content: space-between; font-size: 0.95rem; padding: 4px 0; align-items: center; }
         .close-modal { background: var(--mk-red); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; margin-top: 5px; cursor: pointer; font-family: 'Fredoka One'; font-size: 1.1rem; border-bottom: 5px solid #b03a2e; }
 
         /* Container Principal */
@@ -45,13 +45,16 @@
         .reset-btn { width: 100%; background: var(--mk-red); padding: 12px; margin-top: 10px; border-radius: 15px; font-size: 1rem; border-bottom: 4px solid #b03a2e; }
         #muteBtn { position: fixed; bottom: 15px; right: 15px; background: var(--mk-gold); border: 2px solid black; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; }
 
-        /* CSS para o Novo Botão Laranja de Voltar */
+        /* CSS para o Novo Botão Laranja de Voltar (USANDO SVG) */
         .undo-container { display: flex; align-items: center; }
-        .undo-btn { background: #e67e22; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1rem; margin-left: 10px; border-bottom: 3px solid #d35400; display: flex; align-items: center; justify-content: center; padding: 0; }
-        .undo-btn img { width: 22px; height: 22px; filter: brightness(0) invert(1); } /* Torna o ícone branco */
+        .undo-btn { background: #e67e22; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; margin-left: 10px; border-bottom: 3px solid #d35400; display: flex; align-items: center; justify-content: center; padding: 0; }
+        
+        /* Ajuste do SVG para ficar branco e centralizado */
+        .undo-btn svg { width: 22px; height: 22px; fill: white; }
 
-        /* CSS para o Logo Redondo na Tela Principal */
-        .player-logo-principal { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #555; object-fit: cover; margin-right: 12px; }
+        /* CSS para o Logo Redondo na Tela Principal e Histórico */
+        .player-logo-principal, .player-logo-historico { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #555; object-fit: cover; margin-right: 12px; }
+        .player-logo-historico { width: 40px; height: 40px; margin-right: 10px; border: 1px solid #555; }
     </style>
 </head>
 <body>
@@ -148,7 +151,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // Função de Histórico (Inalterada)
+        // Função de Histórico Atualizada com Logos e Alinhamento
         window.toggleHistory = async () => {
             const modal = document.getElementById('historyModal');
             if(modal.style.display === 'block') { modal.style.display = 'none'; } 
@@ -165,10 +168,21 @@
                     if(d.todos_scores) {
                         playersList = d.todos_scores.map(p => `
                             <div class="history-player" style="${p.name === d.vencedor ? 'color:var(--mk-gold); font-weight:bold;' : ''}">
-                                <span>${p.name}</span><span>${p.score} pts</span>
+                                <div style="display:flex; align-items:center">
+                                    <img src="${p.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}.png" alt="${p.name}" class="player-logo-historico">
+                                    <span>${p.name}</span>
+                                </div>
+                                <span>${p.score} pts</span>
                             </div>`).join('');
                     } else {
-                        playersList = `<div class="history-player" style="color:var(--mk-gold)"><span>${d.vencedor}</span><span>${d.pontos_finais || 0} pts</span></div>`;
+                        // Fallback para histórico antigo (apenas vencedor)
+                        playersList = `<div class="history-player" style="color:var(--mk-gold)">
+                                           <div style="display:flex; align-items:center">
+                                               <img src="${d.vencedor.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}.png" alt="${d.vencedor}" class="player-logo-historico">
+                                               <span>${d.vencedor}</span>
+                                           </div>
+                                           <span>${d.pontos_finais || 0} pts</span>
+                                       </div>`;
                     }
                     historyContent.innerHTML += `
                         <div class="history-card">
@@ -195,11 +209,10 @@
             await updateDoc(doc(db, "mario-kart", "scoreboard"), { players });
         };
 
-        // Função Desfazer que aceita múltiplos cliques e restaura Melhor Posição
+        // Função Desfazer Multi-Clique (Inalterada)
         window.undoLastAction = async () => {
             if (actionStack.length === 0) return alert("Nenhum clique para desfazer!");
             
-            // Retira a ÚLTIMA ação da pilha
             const last = actionStack.pop();
             
             players[last.idx].score -= last.points;
@@ -227,7 +240,7 @@
             }
         };
 
-        // Função Render com Logos na Tela Principal, Ordem Fixa e Botão de Voltar Laranja
+        // Função Render com Logos na Tela Principal e NOVO BOTÃO SVG
         function render() {
             const appDiv = document.getElementById('app');
             // ORDEM ESTÁTICA: Carlão -> Gu -> Chicão
@@ -250,7 +263,9 @@
                             <div class="undo-container">
                                 <div class="total-pts">${p.score}</div>
                                 <button class="undo-btn" onclick="undoLastAction()">
-                                    <img src="undo.png" alt="Desfazer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path d="M125.7 160H176c17.7 0 32 14.3 32 32s-14.3 32-32 32H48c-17.7 0-32-14.3-32-32V64c0-17.7 14.3-32 32-32s32 14.3 32 32v51.2L97.6 97.6c87.5-87.5 229.3-87.5 316.8 0s87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3s-163.8-62.5-226.3 0L125.7 160z"/>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
